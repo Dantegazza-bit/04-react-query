@@ -6,6 +6,7 @@ import SearchBar from "../SearchBar/SearchBar";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import MovieModal from "../MovieModal/MovieModal";
 
 import ReactPaginate from "react-paginate";
 
@@ -13,16 +14,33 @@ import {
   fetchMovies,
   type TmdbSearchResponse,
 } from "../../services/movieService";
+import type { Movie } from "../../types/movie";
+
 import css from "./App.module.css";
 
 export default function App() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
 
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleSubmit = (newQuery: string) => {
     if (newQuery === query) return;
     setQuery(newQuery);
     setPage(1);
+    setSelectedMovie(null);
+    setIsModalOpen(false);
+  };
+
+  const handleSelectMovie = (movie: Movie) => {
+    setSelectedMovie(movie);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedMovie(null);
   };
 
   const { data, isLoading, isFetching, isError, error } = useQuery<
@@ -54,7 +72,7 @@ export default function App() {
       )}
 
       {!isLoading && !isError && movies.length > 0 && (
-        <MovieGrid movies={movies} />
+        <MovieGrid movies={movies} onSelect={handleSelectMovie} />
       )}
 
       {/* індикатор фетчингу наступної сторінки */}
@@ -72,6 +90,14 @@ export default function App() {
           activeClassName={css.active}
           nextLabel="→"
           previousLabel="←"
+        />
+      )}
+
+      {selectedMovie && (
+        <MovieModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          movie={selectedMovie}
         />
       )}
     </div>

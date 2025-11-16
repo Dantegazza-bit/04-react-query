@@ -3,9 +3,10 @@ import css from "./MovieGrid.module.css";
 
 export interface MovieGridProps {
   movies: Movie[];
+  onSelect: (movie: Movie) => void;
 }
 
-export default function MovieGrid({ movies }: MovieGridProps) {
+export default function MovieGrid({ movies, onSelect }: MovieGridProps) {
   return (
     <ul className={css.grid}>
       {movies.map((m) => (
@@ -19,6 +20,7 @@ export default function MovieGrid({ movies }: MovieGridProps) {
             }
             alt={m.title}
             loading="lazy"
+            onClick={() => onSelect(m)}
           />
           <div className={css.meta}>
             <h3 className={css.title}>{m.title}</h3>
