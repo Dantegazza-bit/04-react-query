@@ -1,0 +1,39 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.title {
+  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.text {
+  margin-bottom: 16px;
+}
+
+.closeBtn {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.image {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 16px;
+  border-radius: 4px;
+}

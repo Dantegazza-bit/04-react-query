@@ -1,27 +1,46 @@
-import type { MouseEvent } from "react";
+import { useEffect, type MouseEvent } from "react";
+import { createPortal } from "react-dom";
 import type { Movie } from "../../types/movie";
 import css from "./MovieModal.module.css";
 
 export interface MovieModalProps {
-  isOpen: boolean;
-  onClose?: () => void;
-  movie: Movie | null;
+  movie: Movie;
+  onClose: () => void;
 }
 
-export default function MovieModal({
-  isOpen,
-  onClose,
-  movie,
-}: MovieModalProps) {
-  if (!isOpen || !movie) return null;
+const modalRoot = document.getElementById("modal-root") ?? document.body;
+
+export default function MovieModal({ movie, onClose }: MovieModalProps) {
+  // Закриття по Escape + cleanup
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  const handleBackdropClick = () => {
+    onClose();
+  };
 
   const handleModalClick = (event: MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
   };
 
-  return (
-    <div className={css.backdrop} onClick={onClose}>
+  const imageUrl = movie.backdrop_path
+    ? `https://image.tmdb.org/t/p/w780${movie.backdrop_path}`
+    : "https://via.placeholder.com/780x439?text=No+Image";
+
+  const content = (
+    <div className={css.backdrop} onClick={handleBackdropClick}>
       <div className={css.modal} onClick={handleModalClick}>
+        <img className={css.image} src={imageUrl} alt={movie.title} />
         <h2 className={css.title}>{movie.title}</h2>
 
         <p className={css.text}>
@@ -39,4 +58,6 @@ export default function MovieModal({
       </div>
     </div>
   );
+
+  return createPortal(content, modalRoot);
 }

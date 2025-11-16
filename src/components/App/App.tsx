@@ -1,6 +1,7 @@
 // src/components/App/App.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { Toaster, toast } from "react-hot-toast";
 
 import SearchBar from "../SearchBar/SearchBar";
 import MovieGrid from "../MovieGrid/MovieGrid";
@@ -23,23 +24,19 @@ export default function App() {
   const [page, setPage] = useState(1);
 
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSubmit = (newQuery: string) => {
     if (newQuery === query) return;
     setQuery(newQuery);
     setPage(1);
     setSelectedMovie(null);
-    setIsModalOpen(false);
   };
 
   const handleSelectMovie = (movie: Movie) => {
     setSelectedMovie(movie);
-    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
     setSelectedMovie(null);
   };
 
@@ -55,6 +52,19 @@ export default function App() {
 
   const movies = data?.results ?? [];
   const totalPages = data?.total_pages ?? 0;
+
+  // toast коли запит успішний, але фільмів немає
+  useEffect(() => {
+    if (
+      !isLoading &&
+      !isError &&
+      query.trim().length > 0 &&
+      data &&
+      data.results.length === 0
+    ) {
+      toast.error("No movies found. Try another query.");
+    }
+  }, [data, isLoading, isError, query]);
 
   return (
     <div className={css.app}>
@@ -94,12 +104,10 @@ export default function App() {
       )}
 
       {selectedMovie && (
-        <MovieModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          movie={selectedMovie}
-        />
+        <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
       )}
+
+      <Toaster />
     </div>
   );
 }
